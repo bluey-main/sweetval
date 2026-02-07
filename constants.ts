@@ -28,4 +28,4 @@ export const DATE_CONTEXTS = [
   "Custom..."
 ];
 
-export const SLIDESHOW_MUSIC_URL = './slidemusic.mp3'; // User will provide this path
+export const SLIDESHOW_MUSIC_URL = import.meta.env.VITE_SLIDESHOW_SOUND; // User will provide this path
