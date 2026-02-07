@@ -83,7 +83,16 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+
+      // Detect supported MIME type
+      const supportedType = [
+        'audio/mp4',
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus'
+      ].find(type => MediaRecorder.isTypeSupported(type)) || '';
+
+      const mediaRecorder = new MediaRecorder(stream, supportedType ? { mimeType: supportedType } : {});
       const chunks: Blob[] = [];
 
       mediaRecorder.ondataavailable = (e) => {
@@ -93,7 +102,7 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
       };
 
       mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const blob = new Blob(chunks, { type: mediaRecorder.mimeType });
         const previewUrl = URL.createObjectURL(blob);
         setVoiceNote({ blob, preview: previewUrl });
         stream.getTracks().forEach(track => track.stop());

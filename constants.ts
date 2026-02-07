@@ -27,3 +27,5 @@ export const DATE_CONTEXTS = [
   "A night I'll never forget",
   "Custom..."
 ];
+
+export const SLIDESHOW_MUSIC_URL = './slidemusic.mp3'; // User will provide this path

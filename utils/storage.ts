@@ -142,7 +142,13 @@ export const saveValentineWithProgress = async (
     // 4. Upload voice note
     let voiceNoteUrl: string | undefined;
     const voiceNotePromise = data.voiceNote ? (async () => {
-      const fileName = `${valentine.id}/voice-${Date.now()}.webm`;
+      const mimeType = data.voiceNote!.type;
+      let extension = 'webm';
+      if (mimeType.includes('mp4') || mimeType.includes('m4a')) extension = 'm4a';
+      else if (mimeType.includes('ogg')) extension = 'ogg';
+      else if (mimeType.includes('aac')) extension = 'aac';
+
+      const fileName = `${valentine.id}/voice-${Date.now()}.${extension}`;
       
       console.log(`Uploading voice note (type: ${data.voiceNote!.type})...`);
       const { error: uploadError } = await supabase.storage

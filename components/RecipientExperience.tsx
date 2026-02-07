@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ValentineData } from '../types';
+import { DEFAULT_REASONS, DATE_CONTEXTS, SLIDESHOW_MUSIC_URL } from '../constants';
 
 interface RecipientExperienceProps {
   data: ValentineData;
@@ -522,6 +522,18 @@ const SlideshowStage: React.FC<{ data: ValentineData; onBack: () => void }> = ({
     return () => clearInterval(interval);
   }, [data.photos.length, isPaused]);
 
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPaused) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(e => console.log("Autoplay blocked:", e));
+      }
+    }
+  }, [isPaused]);
+
   return (
     <div className="fixed inset-0 z-[2000] bg-black flex items-center justify-center animate-fadeIn">
       <div className="absolute inset-0 transition-opacity duration-1000 ease-in-out">
@@ -536,6 +548,14 @@ const SlideshowStage: React.FC<{ data: ValentineData; onBack: () => void }> = ({
       </div>
 
       <div className="z-10 relative max-w-5xl w-full h-full flex flex-col items-center justify-center p-6">
+        {SLIDESHOW_MUSIC_URL && (
+          <audio
+            ref={audioRef}
+            src={SLIDESHOW_MUSIC_URL}
+            loop
+            autoPlay
+          />
+        )}
         <img
           src={data.photos[currentIndex]}
           className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-2xl border-4 border-white/20 animate-stage"
