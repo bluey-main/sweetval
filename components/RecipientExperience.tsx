@@ -89,11 +89,21 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
   }, [currentStage]);
 
   const handleNext = () => {
-    if (currentStage === 1 && !data.specialDate) {
-      setCurrentStage(3);
-    } else {
-      setCurrentStage(prev => prev + 1);
+    let nextStage = currentStage + 1;
+
+    // Skip Stage 3 if no media
+    if (nextStage === 3 && !data.video && !data.voiceNote) {
+      nextStage = 4;
     }
+
+    if (currentStage === 1 && !data.specialDate) {
+      nextStage = 3; // Go to Media (was 3 in old flow which was "The Words", but now 3 is Media)
+      if (!data.video && !data.voiceNote) {
+        nextStage = 4; // Skip Media if none
+      }
+    }
+
+    setCurrentStage(nextStage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -280,8 +290,82 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
     );
   }
 
-  // --- STAGE 3: THE WORDS ---
-  if (currentStage === 3) {
+  // --- STAGE 3: MEDIA EXPERIENCE ---
+  if (currentStage === 3 && (data.video || data.voiceNote)) {
+    return (
+      <div className="min-h-screen py-16 md:py-24 px-6 bg-deep-romance animate-stage flex flex-col items-center justify-center">
+        <div className="max-w-4xl mx-auto w-full space-y-12">
+          <div className="text-center space-y-4">
+            <span className="font-cinzel text-[9px] md:text-[11px] tracking-[0.8em] text-white/60 uppercase block font-black">Captured Moments</span>
+            <h2 className="font-cinzel text-3xl md:text-5xl lg:text-6xl text-white font-black tracking-widest uppercase leading-none drop-shadow-md">Voices & Visions</h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-12 items-center justify-center">
+            {data.video && (
+              <div className="bg-white/10 backdrop-blur-md p-4 md:p-6 rounded-3xl border border-white/20 shadow-2xl relative group">
+                <div className="absolute -top-6 -left-6 text-4xl animate-bounce">🎥</div>
+                <video
+                  src={data.video}
+                  controls
+                  className="w-full rounded-2xl shadow-lg border-2 border-white/10"
+                  playsInline
+                />
+              </div>
+            )}
+
+            {data.voiceNote && (
+              <div className="bg-white/10 backdrop-blur-md p-6 md:p-10 rounded-3xl border border-white/20 shadow-2xl text-center space-y-6 relative overflow-hidden group hover:bg-white/20 transition-all duration-500">
+                <div className="absolute top-2 right-4 text-4xl animate-pulse opacity-50">🎙️</div>
+                <div className="space-y-2">
+                  <p className="font-cinzel text-white tracking-[0.3em] uppercase text-xs font-black">A Message for You</p>
+                  <div className="h-0.5 w-12 bg-white/20 mx-auto rounded-full"></div>
+                </div>
+
+                <audio
+                  src={data.voiceNote}
+                  controls
+                  className="w-full h-12 rounded-full"
+                />
+
+                <div className="flex justify-center gap-2 h-8 items-center">
+                  {[...Array(12)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 bg-white/40 rounded-full animate-music"
+                      style={{
+                        height: `${Math.random() * 80 + 20}%`,
+                        animationDelay: `${i * 0.1}s`,
+                        animationDuration: `${0.5 + Math.random() * 1}s`
+                      }}
+                    ></div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="text-center pt-8">
+            <button onClick={handleNext} className="font-cinzel tracking-[0.4em] px-12 py-5 bg-white text-[#590d22] rounded-full text-sm md:text-lg shadow-xl hover:scale-105 transition-all uppercase font-black border-b-[6px] border-gray-300">
+              Continue
+            </button>
+          </div>
+
+          <style>{`
+                @keyframes music {
+                    0%, 100% { height: 10px; }
+                    50% { height: 30px; }
+                }
+                .animate-music {
+                    animation: music 1s ease-in-out infinite;
+                }
+            `}</style>
+        </div>
+      </div>
+    );
+  }
+
+  // --- STAGE 4: THE WORDS ---
+  if (currentStage === 4) {
     return (
       <div className="min-h-screen py-16 md:py-24 px-6 bg-rose-velvet animate-stage">
         <div className="max-w-3xl mx-auto">
@@ -326,8 +410,8 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
     );
   }
 
-  // --- STAGE 4: THE HEARTBEAT ---
-  if (currentStage === 4) {
+  // --- STAGE 5: THE HEARTBEAT ---
+  if (currentStage === 5) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-100 to-red-200 flex flex-col items-center justify-center p-6 text-center animate-stage overflow-hidden relative">
         {/* Minimal Floating Elements */}
@@ -369,8 +453,8 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
     );
   }
 
-  // --- STAGE 5: THE QUESTION ---
-  if (currentStage === 5) {
+  // --- STAGE 6: THE QUESTION ---
+  if (currentStage === 6) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-deep-romance text-white animate-stage relative overflow-hidden">
         <div className="z-10 text-center max-w-3xl w-full px-4">
@@ -402,7 +486,82 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
     );
   }
 
-  // --- STAGE 6: CELEBRATION ---
+  // --- STAGE 7: CELEBRATION ---
+  if (currentStage === 7) {
+    return (
+      <CelebrationContent
+        data={data}
+        onExit={onExit}
+        onSlideshow={() => {
+          setCurrentStage(8);
+          window.scrollTo({ top: 0 });
+        }}
+      />
+    );
+  }
+
+  // --- STAGE 8: SLIDESHOW ---
+  if (currentStage === 8) {
+    return (
+      <SlideshowStage data={data} onBack={() => setCurrentStage(7)} />
+    );
+  }
+
+  return null;
+};
+
+const SlideshowStage: React.FC<{ data: ValentineData; onBack: () => void }> = ({ data, onBack }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % data.photos.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [data.photos.length, isPaused]);
+
+  return (
+    <div className="fixed inset-0 z-[2000] bg-black flex items-center justify-center animate-fadeIn">
+      <div className="absolute inset-0 transition-opacity duration-1000 ease-in-out">
+        {data.photos.map((photo, idx) => (
+          <div
+            key={idx}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${idx === currentIndex ? 'opacity-100' : 'opacity-0'}`}
+            style={{ backgroundImage: `url(${photo})` }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+      </div>
+
+      <div className="z-10 relative max-w-5xl w-full h-full flex flex-col items-center justify-center p-6">
+        <img
+          src={data.photos[currentIndex]}
+          className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-2xl border-4 border-white/20 animate-stage"
+          alt="Memory"
+        />
+
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            className="px-6 py-2 bg-white/10 text-white rounded-full backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all font-cinzel text-xs uppercase tracking-widest"
+          >
+            {isPaused ? '▶ Play' : '⏸ Pause'}
+          </button>
+          <button
+            onClick={onBack}
+            className="px-6 py-2 bg-[#d4567f] text-white rounded-full shadow-lg hover:bg-[#b03d63] transition-all font-cinzel text-xs uppercase tracking-widest font-bold"
+          >
+            Close Slideshow
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CelebrationContent: React.FC<{ data: ValentineData; onExit: () => void; onSlideshow: () => void }> = ({ data, onExit, onSlideshow }) => {
   return (
     <div className="fixed inset-0 z-[1000] bg-gradient-to-br from-rose-900 via-pink-800 to-red-900 flex flex-col items-center justify-start text-center animate-stage overflow-y-auto">
       {/* Floating Hearts Background */}
@@ -473,6 +632,14 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
             </p>
           </div>
 
+          {/* Voice Note in Celebration Stage */}
+          {data.voiceNote && (
+            <div className="mt-12 pt-8 border-t border-white/10 space-y-4">
+              <p className="font-cinzel text-[10px] text-rose-200 tracking-[0.4em] uppercase font-black">My Voice, My Promise</p>
+              <audio src={data.voiceNote} controls className="w-full h-10 opacity-80 hover:opacity-100 transition-opacity" />
+            </div>
+          )}
+
           {/* Footer */}
           <div className="flex flex-col items-center gap-3 md:gap-6 mt-10 md:mt-16 pt-8 md:pt-12 border-t border-white/10">
             <div className="font-cinzel text-sm md:text-xl text-white font-bold tracking-[0.3em] md:tracking-[0.5em] uppercase">
@@ -484,16 +651,26 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
           </div>
         </div>
 
-        {/* Exit Button */}
-        <button
-          onClick={onExit}
-          className="font-cinzel tracking-[0.3em] md:tracking-[0.5em] px-8 py-4 md:px-16 md:py-6 bg-white/10 border-2 border-rose-300/30 text-white rounded-full text-sm md:text-lg hover:bg-white/20 hover:border-rose-300 transition-all shadow-xl mb-12 md:mb-20 uppercase font-bold group active:scale-95"
-        >
-          Exit Story <span className="group-hover:translate-x-1 transition-transform inline-block">💕</span>
-        </button>
+        {/* Action Buttons */}
+        <div className="flex flex-col items-center gap-4 mb-20">
+          <button
+            onClick={onSlideshow}
+            className="font-cinzel tracking-[0.3em] px-8 py-4 bg-[#d4567f] text-white rounded-full text-sm md:text-lg hover:bg-[#b03d63] transition-all shadow-xl uppercase font-bold border-b-4 border-[#8f2d4f]"
+          >
+            🎞️ Watch Our Journey
+          </button>
+
+          <button
+            onClick={onExit}
+            className="font-cinzel tracking-[0.3em] md:tracking-[0.5em] px-8 py-4 md:px-16 md:py-6 bg-white/10 border-2 border-rose-300/30 text-white rounded-full text-sm md:text-lg hover:bg-white/20 hover:border-rose-300 transition-all shadow-xl uppercase font-bold group active:scale-95"
+          >
+            Exit Story <span className="group-hover:translate-x-1 transition-transform inline-block">💕</span>
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
 export default RecipientExperience;
+

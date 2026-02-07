@@ -26,11 +26,11 @@ CREATE INDEX IF NOT EXISTS idx_valentines_code ON public.valentines(code);
 -- Create index on created_at for sorting
 CREATE INDEX IF NOT EXISTS idx_valentines_created_at ON public.valentines(created_at DESC);
 
--- Create media files table (for photos and videos)
+-- Create media files table (for photos, videos, and voice notes)
 CREATE TABLE IF NOT EXISTS public.valentine_media (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   valentine_id UUID NOT NULL REFERENCES public.valentines(id) ON DELETE CASCADE,
-  media_type VARCHAR(10) NOT NULL CHECK (media_type IN ('photo', 'video')),
+  media_type VARCHAR(15) NOT NULL CHECK (media_type IN ('photo', 'video', 'voice_note')),
   file_path TEXT NOT NULL,
   file_url TEXT,
   display_order INTEGER DEFAULT 0,
@@ -146,7 +146,8 @@ SELECT
   v.creator_name,
   v.created_at,
   COUNT(DISTINCT CASE WHEN vm.media_type = 'photo' THEN vm.id END) as photo_count,
-  COUNT(DISTINCT CASE WHEN vm.media_type = 'video' THEN vm.id END) as video_count
+  COUNT(DISTINCT CASE WHEN vm.media_type = 'video' THEN vm.id END) as video_count,
+  COUNT(DISTINCT CASE WHEN vm.media_type = 'voice_note' THEN vm.id END) as voice_note_count
 FROM public.valentines v
 LEFT JOIN public.valentine_media vm ON v.id = vm.valentine_id
 GROUP BY v.id, v.code, v.recipient_name, v.creator_name, v.created_at

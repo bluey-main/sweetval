@@ -54,7 +54,7 @@ export interface Database {
         Row: {
           id: string
           valentine_id: string
-          media_type: 'photo' | 'video'
+          media_type: 'photo' | 'video' | 'voice_note'
           file_path: string
           file_url: string | null
           display_order: number
@@ -63,7 +63,7 @@ export interface Database {
         Insert: {
           id?: string
           valentine_id: string
-          media_type: 'photo' | 'video'
+          media_type: 'photo' | 'video' | 'voice_note'
           file_path: string
           file_url?: string | null
           display_order?: number
@@ -72,7 +72,7 @@ export interface Database {
         Update: {
           id?: string
           valentine_id?: string
-          media_type?: 'photo' | 'video'
+          media_type?: 'photo' | 'video' | 'voice_note'
           file_path?: string
           file_url?: string | null
           display_order?: number
@@ -90,6 +90,7 @@ export interface Database {
           created_at: string
           photo_count: number
           video_count: number
+          voice_note_count: number
         }
       }
     }

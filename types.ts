@@ -1,9 +1,11 @@
 
+
 export interface ValentineData {
   code: string;
   recipientName: string;
-  photos: string[]; // Base64 strings
-  video?: string; // Base64 string
+  photos: string[]; // Base64 strings or URLs
+  video?: string; // Base64 string or URL
+  voiceNote?: string; // Base64 string or URL
   favoriteColor: string;
   musicEnabled: boolean;
   specialDate?: {

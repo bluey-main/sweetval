@@ -2,7 +2,8 @@
 import React, { useState, useRef } from 'react';
 import { ValentineData } from '../types';
 import { DEFAULT_REASONS, DATE_CONTEXTS } from '../constants';
-import { generateUniqueCode, saveValentine, fileToBase64 } from '../utils/storage';
+import { generateUniqueCode, saveValentineWithProgress } from '../utils/storage';
+import { trimVideoTo30Seconds, blobToBase64 } from '../utils/videoProcessor';
 
 interface CreatorModeProps {
   onSuccess: (data: ValentineData) => void;
@@ -11,7 +12,15 @@ interface CreatorModeProps {
 
 const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
   const [recipientName, setRecipientName] = useState('');
-  const [photos, setPhotos] = useState<string[]>([]);
+
+  const [photos, setPhotos] = useState<{ file: File; preview: string; id: string }[]>([]);
+  const [video, setVideo] = useState<{ blob: Blob; preview: string } | null>(null);
+  const [voiceNote, setVoiceNote] = useState<{ blob: Blob; preview: string } | null>(null);
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isProcessingVideo, setIsProcessingVideo] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const [favoriteColor, setFavoriteColor] = useState('#FF1493');
   const [specialDate, setSpecialDate] = useState({ date: '', context: DATE_CONTEXTS[0] });
   const [customContext, setCustomContext] = useState('');
@@ -21,17 +30,116 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      const newPhotos = await Promise.all(filesArray.map(fileToBase64));
+      const newPhotos = filesArray.map(file => ({
+        file,
+        preview: URL.createObjectURL(file as Blob), // Create temporary preview URL
+        id: Math.random().toString(36).substr(2, 9)
+      }));
       setPhotos(prev => [...prev, ...newPhotos].slice(0, 8));
     }
   };
 
   const removePhoto = (index: number) => {
     setPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setIsProcessingVideo(true);
+
+      try {
+        // Trim video to 30 seconds
+        const trimmedBlob = await trimVideoTo30Seconds(file);
+        // Create preview URL for the trimmed blob
+        const previewUrl = URL.createObjectURL(trimmedBlob);
+        setVideo({ blob: trimmedBlob, preview: previewUrl });
+      } catch (error) {
+        console.error('Error processing video:', error);
+        alert('Failed to process video. Please try again.');
+      } finally {
+        setIsProcessingVideo(false);
+      }
+    }
+  };
+
+  const removeVideo = () => {
+    if (video) {
+      URL.revokeObjectURL(video.preview);
+    }
+    setVideo(null);
+    if (videoInputRef.current) {
+      videoInputRef.current.value = '';
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const previewUrl = URL.createObjectURL(blob);
+        setVoiceNote({ blob, preview: previewUrl });
+        stream.getTracks().forEach(track => track.stop());
+        setRecordingTime(0);
+        if (recordingIntervalRef.current) {
+          clearInterval(recordingIntervalRef.current);
+        }
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // Start timer
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 60) {
+            stopRecording();
+            return 60;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      alert('Failed to access microphone. Please check permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  const removeVoiceNote = () => {
+    if (voiceNote) {
+      URL.revokeObjectURL(voiceNote.preview);
+    }
+    setVoiceNote(null);
+    setRecordingTime(0);
   };
 
   const addReason = () => {
@@ -59,10 +167,12 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
     try {
       const code = await generateUniqueCode();
 
-      const finalData: ValentineData = {
+      const partialData = {
         code,
         recipientName,
-        photos,
+        photos: photos.map(p => ({ file: p.file, id: p.id })),
+        video: video?.blob,
+        voiceNote: voiceNote?.blob,
         favoriteColor,
         musicEnabled: true,
         specialDate: specialDate.date ? {
@@ -77,7 +187,9 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
         createdAt: new Date().toISOString()
       };
 
-      await saveValentine(finalData);
+      const finalData = await saveValentineWithProgress(partialData, (progress) => {
+        setUploadProgress(progress);
+      });
 
       setTimeout(() => {
         onSuccess(finalData);
@@ -143,12 +255,104 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
               </div>
               {photos.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
-                  {photos.map((url, idx) => (
-                    <div key={idx} className="relative group p-1 bg-white shadow-sm rounded-lg overflow-hidden aspect-square">
-                      <img src={url} alt="Memory" className="w-full h-full object-cover rounded-md" />
+                  {photos.map((photo, idx) => (
+                    <div key={photo.id} className="relative group p-1 bg-white shadow-sm rounded-lg overflow-hidden aspect-square">
+                      <img src={photo.preview} alt="Memory" className="w-full h-full object-cover rounded-md" />
                       <button onClick={() => removePhoto(idx)} className="absolute top-1 right-1 w-6 h-6 bg-[#d4567f] text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-xs">✕</button>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Video Upload Section */}
+            <div className="space-y-3">
+              <label className="font-josefin text-[#d4567f] font-black uppercase text-[9px] tracking-widest">
+                Video Message (30s Max)
+              </label>
+              {!video ? (
+                <div
+                  onClick={() => videoInputRef.current?.click()}
+                  className="border-2 border-dashed border-[#d4567f]/20 rounded-2xl p-8 text-center cursor-pointer bg-white/40 hover:border-[#d4567f] transition-all group"
+                >
+                  {isProcessingVideo ? (
+                    <>
+                      <div className="text-4xl opacity-40 mb-2 animate-pulse">⏳</div>
+                      <p className="font-cinzel text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                        Processing Video...
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-4xl opacity-10 mb-2 group-hover:opacity-40 transition-all">🎥</div>
+                      <p className="font-cinzel text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#d4567f]">
+                        Upload Video
+                      </p>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    ref={videoInputRef}
+                    onChange={handleVideoUpload}
+                    accept="video/*"
+                    className="hidden"
+                    disabled={isProcessingVideo}
+                  />
+                </div>
+              ) : (
+                <div className="relative bg-white p-3 rounded-2xl shadow-sm">
+                  <video src={video.preview} controls className="w-full rounded-lg" />
+                  <button
+                    onClick={removeVideo}
+                    className="absolute top-5 right-5 w-8 h-8 bg-[#d4567f] text-white rounded-full flex items-center justify-center hover:bg-[#c14570] transition-all text-sm font-black"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Voice Note Section */}
+            <div className="space-y-3">
+              <label className="font-josefin text-[#d4567f] font-black uppercase text-[9px] tracking-widest">
+                Voice Note (60s Max)
+              </label>
+              {!voiceNote ? (
+                <div className="border-2 border-dashed border-[#d4567f]/20 rounded-2xl p-8 text-center bg-white/40">
+                  {!isRecording ? (
+                    <button
+                      onClick={startRecording}
+                      className="w-full flex flex-col items-center gap-3 group"
+                    >
+                      <div className="text-4xl opacity-10 group-hover:opacity-40 transition-all">🎙️</div>
+                      <p className="font-cinzel text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#d4567f]">
+                        Record Voice Note
+                      </p>
+                    </button>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="text-4xl animate-pulse">🔴</div>
+                      <p className="font-cinzel text-lg font-black text-[#d4567f]">
+                        {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                      </p>
+                      <button
+                        onClick={stopRecording}
+                        className="px-6 py-2 bg-[#d4567f] text-white rounded-full font-cinzel text-xs font-black uppercase tracking-wider hover:bg-[#c14570] transition-all"
+                      >
+                        Stop Recording
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="relative bg-white p-4 rounded-2xl shadow-sm">
+                  <audio src={voiceNote.preview} controls className="w-full" />
+                  <button
+                    onClick={removeVoiceNote}
+                    className="absolute top-2 right-2 w-8 h-8 bg-[#d4567f] text-white rounded-full flex items-center justify-center hover:bg-[#c14570] transition-all text-sm font-black"
+                  >
+                    ✕
+                  </button>
                 </div>
               )}
             </div>
@@ -254,6 +458,20 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
         </div>
 
         <div className="py-8 text-center space-y-4">
+          {isGenerating && (
+            <div className="w-full max-w-md mx-auto space-y-2">
+              <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#d4567f] transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="font-cinzel text-xs font-black text-[#d4567f] uppercase tracking-widest">
+                {uploadProgress < 100 ? `Uploading Memories... ${Math.round(uploadProgress)}%` : 'Finalizing...'}
+              </p>
+            </div>
+          )}
+
           <button
             onClick={handleGenerate}
             disabled={isGenerating || !recipientName}

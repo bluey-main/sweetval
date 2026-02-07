@@ -87,19 +87,19 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ code, onReset }) => {
         </div>
 
         <div className="glass-card p-8 md:p-12 rounded-[2rem] md:rounded-[2.5rem] text-left space-y-6 md:space-y-8 shadow-xl border border-white/10">
-          <h3 className="font-cinzel text-base md:text-lg font-black text-white text-center tracking-[0.4em] md:tracking-[0.6em] uppercase opacity-80">Directive</h3>
+          <h3 className="font-cinzel text-base md:text-lg font-black text-[#d4567f]  text-center tracking-[0.4em] md:tracking-[0.6em] uppercase opacity-80">Directive</h3>
           <div className="space-y-6 md:space-y-8">
             <div className="flex gap-4 md:gap-6 items-start">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-white text-[#d4567f] rounded-full flex-shrink-0 flex items-center justify-center font-black text-base md:text-lg shadow-lg">1</div>
-              <p className="font-josefin text-white text-sm md:text-base leading-relaxed font-light italic opacity-90">Share the link or code with your beloved.</p>
+              <p className="font-josefin text-[#d4567f]  text-sm md:text-base leading-relaxed font-light italic opacity-90">Share the link or code with your beloved.</p>
             </div>
             <div className="flex gap-4 md:gap-6 items-start">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-white text-[#d4567f] rounded-full flex-shrink-0 flex items-center justify-center font-black text-base md:text-lg shadow-lg">2</div>
-              <p className="font-josefin text-white text-sm md:text-base leading-relaxed font-light italic opacity-90">They'll enter the code to unlock your message.</p>
+              <p className="font-josefin text-[#d4567f]  text-sm md:text-base leading-relaxed font-light italic opacity-90">They'll enter the code to unlock your message.</p>
             </div>
             <div className="flex gap-4 md:gap-6 items-start">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-white text-[#d4567f] rounded-full flex-shrink-0 flex items-center justify-center font-black text-base md:text-lg shadow-lg">3</div>
-              <p className="font-josefin text-white text-sm md:text-base leading-relaxed font-light italic opacity-90">Celebrate together as they experience your creation.</p>
+              <p className="font-josefin text-[#d4567f]  text-sm md:text-base leading-relaxed font-light italic opacity-90">Celebrate together as they experience your creation.</p>
             </div>
           </div>
         </div>
