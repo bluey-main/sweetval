@@ -1,0 +1,8 @@
+{
+  "name": "Valentine's Secret Proposal",
+  "description": "A deeply personal and romantic proposal platform where creators can craft custom love stories for their partners, complete with hidden codes, memory envelopes, and magical animations.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
