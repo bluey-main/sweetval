@@ -29,7 +29,7 @@ const PhotoEnvelope: React.FC<{ photo: string; index: number }> = ({ photo, inde
 
   return (
     <div className="flex flex-col items-center">
-      <div 
+      <div
         className={`envelope-container ${isOpen ? 'opened' : ''} group`}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -55,7 +55,7 @@ const PhotoEnvelope: React.FC<{ photo: string; index: number }> = ({ photo, inde
 };
 
 const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit }) => {
-  const [currentStage, setCurrentStage] = useState(0); 
+  const [currentStage, setCurrentStage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [yesScale, setYesScale] = useState(1);
   const [noBtnPos, setNoBtnPos] = useState({ x: 0, y: 0 });
@@ -77,7 +77,7 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
 
   useEffect(() => {
     let interval: any;
-    if (currentStage === 6) { 
+    if (currentStage === 6) {
       spawnParticles(35, ['#ff4d6d', '#ff758f', '#ffb3c1', '#ffffff'], ['❤️', '💖', '✨', '🌹', '🤍', '🌸']);
       interval = setInterval(() => {
         spawnParticles(4, ['#ff4d6d', '#ff758f'], ['❤️', '💖', '✨']);
@@ -138,7 +138,7 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
         <div className="text-6xl md:text-8xl animate-pulse mb-8 filter drop-shadow-[0_0_40px_rgba(212,86,127,1)]">💌</div>
         <h2 className="font-cinzel text-lg md:text-2xl tracking-[0.5em] text-white/50 uppercase font-black text-center">Unfolding Forever</h2>
         <div className="mt-8 w-40 md:w-56 h-1 bg-white/10 rounded-full overflow-hidden">
-          <div className="h-full bg-[#d4567f] animate-[shimmer_3s_infinite]" style={{width: '75%', backgroundSize: '200%'}}></div>
+          <div className="h-full bg-[#d4567f] animate-[shimmer_3s_infinite]" style={{ width: '75%', backgroundSize: '200%' }}></div>
         </div>
       </div>
     );
@@ -147,37 +147,75 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
   // --- STAGE 0: INTRO ---
   if (currentStage === 0) {
     return (
-      <div className="min-h-screen relative flex flex-col items-center justify-center p-8 text-center animate-stage font-josefin overflow-hidden">
+      <div className="min-h-screen relative flex flex-col items-center justify-center p-6 md:p-8 text-center animate-stage font-josefin overflow-hidden">
+        {/* Background Photo with Romantic Overlay */}
         {data.photos[0] && (
-          <div 
+          <div
             className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-[20s] scale-110"
-            style={{ 
+            style={{
               backgroundImage: `url(${data.photos[0]})`,
               animation: 'slow-zoom 20s ease-in-out infinite alternate'
             }}
           >
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+            {/* Valentine-themed gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-rose-900/60 via-pink-800/50 to-red-900/60 backdrop-blur-[1px]"></div>
           </div>
         )}
-        
-        <div className="space-y-6 relative z-10 max-w-4xl px-4">
-          <span className="text-7xl md:text-9xl mb-4 inline-block animate-float drop-shadow-2xl">🌹</span>
-          <h1 className="font-cinzel text-4xl md:text-7xl lg:text-8xl text-white font-black leading-none tracking-tighter uppercase drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-            My Only <br /> {data.recipientName}
-          </h1>
-          <p className="font-playfair italic text-lg md:text-3xl lg:text-4xl text-white/90 max-w-2xl px-4 mx-auto leading-tight font-light drop-shadow-lg">
-            "Every love story is beautiful, but ours is my absolute favorite."
-          </p>
-          <div className="pt-10">
-            <button 
-              onClick={handleNext} 
-              className="font-cinzel tracking-[0.4em] px-10 py-5 bg-white text-[#d4567f] rounded-full text-base md:text-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all uppercase font-black border-b-[6px] border-gray-200"
+
+        {/* Floating Hearts */}
+        <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
+          {[...Array(12)].map((_, i) => (
+            <span
+              key={i}
+              className="absolute animate-float opacity-20 text-2xl md:text-4xl"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: `${8 + Math.random() * 4}s`
+              }}
             >
-              Enter Our World
+              {['💕', '💖', '🌹', '💗'][i % 4]}
+            </span>
+          ))}
+        </div>
+
+        <div className="space-y-6 md:space-y-8 relative z-10 max-w-4xl px-4">
+          {/* Romantic Icon */}
+          <div className="flex justify-center gap-3 md:gap-4 mb-4">
+            <span className="text-5xl md:text-7xl animate-float drop-shadow-2xl" style={{ animationDelay: '0s' }}>💕</span>
+            <span className="text-6xl md:text-8xl animate-float drop-shadow-2xl" style={{ animationDelay: '0.3s' }}>💖</span>
+            <span className="text-5xl md:text-7xl animate-float drop-shadow-2xl" style={{ animationDelay: '0.6s' }}>💕</span>
+          </div>
+
+          {/* Romantic Heading */}
+          <h1 className="font-cinzel text-4xl md:text-6xl lg:text-7xl text-white font-black leading-tight tracking-tight uppercase drop-shadow-2xl">
+            To My Beloved<br /> {data.recipientName}
+          </h1>
+
+          {/* Romantic Quote */}
+          <p className="font-vibes text-2xl md:text-4xl lg:text-5xl text-rose-100 max-w-2xl px-4 mx-auto leading-relaxed drop-shadow-xl">
+            "You are the love I never knew I needed, and now can't live without."
+          </p>
+
+          {/* Decorative Divider */}
+          <div className="flex items-center justify-center gap-3 py-4">
+            <div className="w-12 md:w-20 h-0.5 bg-rose-200/50 rounded-full"></div>
+            <span className="text-2xl md:text-3xl">💗</span>
+            <div className="w-12 md:w-20 h-0.5 bg-rose-200/50 rounded-full"></div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="pt-6 md:pt-8">
+            <button
+              onClick={handleNext}
+              className="font-cinzel tracking-[0.3em] md:tracking-[0.4em] px-10 py-5 md:px-12 md:py-6 bg-white text-rose-700 rounded-full text-base md:text-xl shadow-2xl hover:scale-105 hover:bg-rose-50 active:scale-95 transition-all uppercase font-black border-b-4 md:border-b-6 border-rose-200"
+            >
+              Open My Heart 💕
             </button>
           </div>
         </div>
-        
+
         <style>{`
           @keyframes slow-zoom {
             from { transform: scale(1); }
@@ -218,10 +256,10 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-romantic-main text-center animate-stage font-josefin overflow-hidden relative">
         <div className="absolute inset-0 pointer-events-none opacity-10">
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-cinzel text-[20rem] font-black tracking-tighter uppercase whitespace-nowrap">HISTORY</div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-cinzel text-[20rem] font-black tracking-tighter uppercase whitespace-nowrap">HISTORY</div>
         </div>
         <div className="z-10 space-y-12 max-w-3xl">
-          <span className="text-6xl animate-pulse drop-shadow-lg">✨🕯️✨</span>
+          <span className="text-6xl animate-pulse drop-shadow-lg">😍</span>
           <div className="space-y-4">
             <h3 className="font-cinzel text-xs md:text-sm tracking-[1em] text-[#d4567f] uppercase font-black opacity-60">A Day Written in Stars</h3>
             <p className="font-cinzel text-3xl md:text-6xl lg:text-7xl font-black text-[#5c3d4a] tracking-tighter uppercase leading-tight drop-shadow-md">
@@ -255,9 +293,9 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
 
           <div className="space-y-6 md:space-y-10 mb-24 md:mb-40 px-4">
             {data.reasons.map((r, i) => (
-              <div key={i} className="glass-card p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-lg flex flex-col md:flex-row items-center gap-6 group transition-all hover:bg-white/15">
+              <div key={i} className="glass-card p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-lg flex flex-col md:flex-row items-center gap-2 group transition-all hover:bg-white/15">
                 <span className="text-3xl md:text-5xl filter drop-shadow-lg animate-float">💖</span>
-                <p className="text-base md:text-xl lg:text-2xl font-playfair italic text-white leading-relaxed font-light text-center md:text-left">{r}</p>
+                <p className="text-2xl md:text-2xl lg:text-3xl font-playfair italic text-pink-500 leading-relaxed font-light text-center md:text-left">{r}</p>
               </div>
             ))}
           </div>
@@ -291,19 +329,41 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
   // --- STAGE 4: THE HEARTBEAT ---
   if (currentStage === 4) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center animate-stage overflow-hidden">
-        <h2 className="font-cinzel text-2xl md:text-4xl lg:text-5xl text-white font-black opacity-30 tracking-[0.6em] md:tracking-[1em] uppercase mb-16 md:mb-24 leading-tight max-w-full px-4 select-none">
-          Breathe <br className="md:hidden" /> & Feel <br /> My Heart
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-100 to-red-200 flex flex-col items-center justify-center p-6 text-center animate-stage overflow-hidden relative">
+        {/* Minimal Floating Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[...Array(8)].map((_, i) => (
+            <span
+              key={i}
+              className="absolute animate-float opacity-20 text-xl md:text-2xl"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: `${6 + Math.random() * 4}s`
+              }}
+            >
+              {['💕', '🌹', '💖'][i % 3]}
+            </span>
+          ))}
+        </div>
+
+        {/* Simple Heading */}
+        <h2 className="font-cinzel text-2xl md:text-6xl text-rose-800 font-bold tracking-widest uppercase mb-8 md:mb-12 px-4 select-none z-10">
+          Feel My Love
         </h2>
-        {/* Heart size increased significantly */}
-        <div 
-          onClick={handleNext} 
-          className="text-[12rem] md:text-[18rem] lg:text-[24rem] pulse-romantic cursor-pointer select-none filter drop-shadow-[0_0_100px_rgba(212,86,127,0.7)] hover:scale-110 transition-transform"
+
+        {/* Minimalist Heart */}
+        <div
+          onClick={handleNext}
+          className="text-[8rem] md:text-[12rem] pulse-romantic cursor-pointer select-none filter drop-shadow-lg hover:scale-105 transition-transform z-10"
         >
           ❤️
         </div>
-        <p className="font-vibes text-3xl md:text-5xl lg:text-6xl text-red-900/70 mt-16 md:mt-24 tracking-[0.2em] font-light animate-pulse">
-          Touch to seal destiny...
+
+        {/* Simple Message */}
+        <p className="font-vibes text-2xl md:text-6xl text-rose-600 mt-8 md:mt-12 tracking-wide animate-pulse z-10">
+          Touch to continue...
         </p>
       </div>
     );
@@ -319,7 +379,7 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
             {data.recipientName}, <br /> Will you be <br className="md:hidden" /> my Valentine?
           </h1>
           <div className="relative h-40 md:h-[15rem] flex flex-col items-center justify-center gap-12">
-            <button 
+            <button
               onClick={handleNext}
               className="px-14 py-5 md:px-20 md:py-8 bg-white text-[#590d22] text-3xl md:text-5xl lg:text-6xl font-black rounded-full shadow-[0_30px_100px_rgba(255,255,255,0.4)] z-50 transition-all hover:scale-105 active:scale-95 border-b-[8px] md:border-b-[12px] border-gray-200 font-cinzel leading-none uppercase tracking-tighter"
               style={{ transform: `scale(${yesScale})` }}
@@ -327,7 +387,7 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
               YES! 💖
             </button>
             {!noHidden && (
-              <button 
+              <button
                 onMouseEnter={handleNoHover}
                 onTouchStart={(e) => { e.preventDefault(); handleNoHover(); }}
                 className="px-8 py-3 md:px-12 md:py-4 bg-black/60 backdrop-blur-2xl text-white rounded-full font-cinzel border-[2px] border-white/20 transition-all duration-300 text-base md:text-xl shadow-xl tracking-[0.3em] opacity-50 hover:opacity-100 uppercase font-black"
@@ -344,50 +404,92 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
 
   // --- STAGE 6: CELEBRATION ---
   return (
-    <div className="fixed inset-0 z-[1000] bg-midnight-gold flex flex-col items-center justify-start text-center animate-stage overflow-y-auto">
-      <div className="z-10 relative w-full py-12 md:py-20 px-6 max-w-4xl mx-auto">
-        <div className="mb-16 md:mb-24 space-y-6 md:space-y-8">
-          <span className="font-cinzel text-[9px] md:text-[14px] text-[#d4af37] tracking-[1em] md:tracking-[1.2em] uppercase block mb-4 font-black animate-pulse">Our Forever Begins</span>
-          <h1 className="font-cinzel text-6xl md:text-8xl lg:text-9xl text-transparent bg-clip-text bg-gradient-to-t from-[#d4567f] via-white to-[#d4af37] font-black drop-shadow-[0_15px_40px_rgba(212,86,127,0.8)] leading-none uppercase tracking-tighter">
-            YES!
+    <div className="fixed inset-0 z-[1000] bg-gradient-to-br from-rose-900 via-pink-800 to-red-900 flex flex-col items-center justify-start text-center animate-stage overflow-y-auto">
+      {/* Floating Hearts Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-10">
+        {[...Array(15)].map((_, i) => (
+          <span
+            key={i}
+            className="absolute animate-float text-3xl md:text-5xl"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${i * 0.4}s`,
+              animationDuration: `${8 + Math.random() * 4}s`
+            }}
+          >
+            {['💕', '💖', '🌹', '💗'][i % 4]}
+          </span>
+        ))}
+      </div>
+
+      <div className="z-10 relative w-full py-8 md:py-16 px-4 md:px-6 max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-12 md:mb-20 space-y-4 md:space-y-6">
+          <span className="font-cinzel text-xs md:text-sm text-rose-200 tracking-[0.5em] md:tracking-[0.8em] uppercase block font-bold animate-pulse">
+            Our Forever Begins
+          </span>
+          <h1 className="font-cinzel text-5xl md:text-7xl lg:text-8xl text-white font-black drop-shadow-2xl leading-none uppercase">
+            YES! 💕
           </h1>
-          <div className="mt-8 md:mt-12 text-white/95 text-3xl md:text-6xl font-vibes drop-shadow-xl px-4 leading-none animate-float">My heart is yours, {data.recipientName}</div>
+          <div className="mt-6 md:mt-8 text-rose-100 text-2xl md:text-4xl font-vibes drop-shadow-lg px-2 leading-relaxed">
+            My heart is yours, {data.recipientName}
+          </div>
         </div>
-        
-        <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-24 md:mb-40 px-4">
+
+        {/* Photo Gallery - Mobile Optimized */}
+        <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-16 md:mb-24 px-2">
           {data.photos.map((img, i) => (
-            <div key={i} className="polaroid w-40 md:w-64 group hover:scale-105 transition-all cursor-pointer shadow-xl bg-white"
-                 style={{ transform: `rotate(${(i % 2 === 0 ? -6 : 6) + (Math.random() * 4 - 2)}deg)` }}>
-              <img src={img} alt="Celebration" className="grayscale group-hover:grayscale-0 transition-all duration-1000 border border-[#d4af37]/10" />
-              <div className="font-cinzel text-[#5c3d4a] text-[7px] md:text-[11px] mt-3 md:mt-6 tracking-[0.6em] md:tracking-[0.8em] uppercase font-black opacity-70">CHAPTER {i+1}</div>
+            <div
+              key={i}
+              className="w-32 md:w-48 group hover:scale-105 transition-all cursor-pointer shadow-2xl bg-white p-2 md:p-3 rounded-lg"
+              style={{ transform: `rotate(${(i % 2 === 0 ? -3 : 3)}deg)` }}
+            >
+              <img
+                src={img}
+                alt="Memory"
+                className="w-full h-32 md:h-48 object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-700"
+              />
+              <div className="font-cinzel text-rose-800 text-[8px] md:text-xs mt-2 tracking-wider uppercase font-bold">
+                Memory {i + 1}
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="max-w-2xl mx-auto glass-card p-10 md:p-20 rounded-[3rem] md:rounded-[4rem] shadow-2xl relative overflow-hidden mb-24 md:mb-40 mx-4 transition-all hover:bg-white/10 group">
-          <div className="absolute top-0 left-0 w-1.5 md:w-2 h-full bg-gradient-to-b from-[#d4af37] via-[#d4567f] to-transparent"></div>
-          <div className="absolute top-0 right-0 w-1.5 md:w-2 h-full bg-gradient-to-b from-[#d4af37] via-[#d4567f] to-transparent"></div>
-          
-          <div className="space-y-12">
-            <p className="font-playfair italic text-3xl md:text-5xl lg:text-6xl text-white/90 leading-tight drop-shadow-xl px-2">
-              "In a world of constant change, <br /> you are my only constant."
+        {/* Romantic Message Card */}
+        <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-md p-6 md:p-12 rounded-3xl md:rounded-[3rem] shadow-2xl border-2 border-rose-300/20 mb-16 md:mb-24 relative overflow-hidden">
+          {/* Decorative Hearts */}
+          <div className="absolute top-4 left-4 text-2xl md:text-4xl opacity-20">💖</div>
+          <div className="absolute bottom-4 right-4 text-2xl md:text-4xl opacity-20">💕</div>
+
+          <div className="space-y-6 md:space-y-10">
+            <p className="font-playfair italic text-xl md:text-3xl lg:text-4xl text-white leading-relaxed drop-shadow-lg">
+              "In a world of constant change,<br />you are my only constant."
             </p>
-            <p className="font-vibes text-4xl md:text-6xl lg:text-7xl text-[#d4af37] leading-tight drop-shadow-2xl">
-              I promise to love you <br /> with every breath I take.
+            <div className="w-16 h-1 bg-rose-300/30 mx-auto rounded-full"></div>
+            <p className="font-vibes text-2xl md:text-4xl lg:text-5xl text-rose-200 leading-relaxed drop-shadow-xl">
+              I promise to love you<br />with every breath I take.
             </p>
           </div>
-          
-          <div className="flex flex-col items-center gap-6 md:gap-10 mt-16 pt-16 border-t border-white/10">
-            <div className="font-cinzel text-lg md:text-3xl text-white font-black tracking-[0.6em] md:tracking-[0.8em] uppercase">Two Souls, One Destiny</div>
-            <div className="font-josefin text-[7px] md:text-[11px] text-white/30 tracking-[0.5em] md:tracking-[0.6em] uppercase font-black">ETERNALLY CRAFTED FOR {data.recipientName?.toUpperCase()} • {new Date().getFullYear()}</div>
+
+          {/* Footer */}
+          <div className="flex flex-col items-center gap-3 md:gap-6 mt-10 md:mt-16 pt-8 md:pt-12 border-t border-white/10">
+            <div className="font-cinzel text-sm md:text-xl text-white font-bold tracking-[0.3em] md:tracking-[0.5em] uppercase">
+              Two Souls, One Destiny
+            </div>
+            <div className="font-josefin text-[8px] md:text-xs text-rose-200/50 tracking-widest uppercase font-semibold">
+              Forever {data.recipientName} • {new Date().getFullYear()}
+            </div>
           </div>
         </div>
 
-        <button 
+        {/* Exit Button */}
+        <button
           onClick={onExit}
-          className="font-cinzel tracking-[0.6em] md:tracking-[0.8em] px-10 py-5 md:px-20 md:py-8 bg-white/5 border-2 md:border-4 border-[#d4af37]/30 text-white rounded-full text-base md:text-xl hover:border-[#d4af37] hover:text-[#d4af37] transition-all duration-1000 shadow-2xl mb-24 uppercase font-black group active:scale-95"
+          className="font-cinzel tracking-[0.3em] md:tracking-[0.5em] px-8 py-4 md:px-16 md:py-6 bg-white/10 border-2 border-rose-300/30 text-white rounded-full text-sm md:text-lg hover:bg-white/20 hover:border-rose-300 transition-all shadow-xl mb-12 md:mb-20 uppercase font-bold group active:scale-95"
         >
-          Exit Story <span className="group-hover:translate-x-1 transition-transform inline-block">🕊️</span>
+          Exit Story <span className="group-hover:translate-x-1 transition-transform inline-block">💕</span>
         </button>
       </div>
     </div>

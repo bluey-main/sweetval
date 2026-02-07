@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CREATOR_PASSWORD } from '../constants';
 
 interface CodeEntryProps {
@@ -13,6 +13,15 @@ const CodeEntry: React.FC<CodeEntryProps> = ({ onSuccess, onOpenCreator }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [creatorPassword, setCreatorPassword] = useState('');
   const [pwError, setPwError] = useState('');
+
+  // Auto-prefill code from URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code');
+    if (codeParam && codeParam.length === 6) {
+      setCode(codeParam.toUpperCase());
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
