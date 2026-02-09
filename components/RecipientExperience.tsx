@@ -460,7 +460,10 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
         <div className="z-10 text-center max-w-3xl w-full px-4">
           <div className="mb-10 text-5xl md:text-8xl animate-bounce opacity-95">💍</div>
           <h1 className="font-cinzel text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-16 md:mb-24 drop-shadow-2xl leading-[1.1] tracking-tighter uppercase px-4 shimmer-text">
-            {data.recipientName}, <br /> Will you be <br className="md:hidden" /> my Valentine?
+            {data.proposalType === 'wishing'
+              ? <>{data.recipientName}, <br /> Happy Valentine's Day! <br className="hidden" /> 🌹</>
+              : <>{data.recipientName}, <br /> Will you be <br className="md:hidden" /> my Valentine?</>
+            }
           </h1>
           <div className="relative h-40 md:h-[15rem] flex flex-col items-center justify-center gap-12">
             <button
@@ -468,9 +471,9 @@ const RecipientExperience: React.FC<RecipientExperienceProps> = ({ data, onExit 
               className="px-14 py-5 md:px-20 md:py-8 bg-white text-[#590d22] text-3xl md:text-5xl lg:text-6xl font-black rounded-full shadow-[0_30px_100px_rgba(255,255,255,0.4)] z-50 transition-all hover:scale-105 active:scale-95 border-b-[8px] md:border-b-[12px] border-gray-200 font-cinzel leading-none uppercase tracking-tighter"
               style={{ transform: `scale(${yesScale})` }}
             >
-              YES! 💖
+              {data.proposalType === 'wishing' ? 'I LOVE YOU! 💖' : 'YES! 💖'}
             </button>
-            {!noHidden && (
+            {(!noHidden && data.proposalType !== 'wishing') && (
               <button
                 onMouseEnter={handleNoHover}
                 onTouchStart={(e) => { e.preventDefault(); handleNoHover(); }}

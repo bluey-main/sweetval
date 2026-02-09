@@ -20,6 +20,7 @@ export interface Database {
           special_date: Json | null
           memories: string | null
           reasons: string[]
+          proposal_type: 'asking' | 'wishing'
           created_at: string
           updated_at: string
         }
@@ -33,6 +34,7 @@ export interface Database {
           special_date?: Json | null
           memories?: string | null
           reasons: string[]
+          proposal_type?: 'asking' | 'wishing'
           created_at?: string
           updated_at?: string
         }
@@ -46,9 +48,11 @@ export interface Database {
           special_date?: Json | null
           memories?: string | null
           reasons?: string[]
+          proposal_type?: 'asking' | 'wishing'
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       valentine_media: {
         Row: {
@@ -78,6 +82,7 @@ export interface Database {
           display_order?: number
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: {
@@ -98,6 +103,9 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
       [_ in never]: never
     }
   }

@@ -34,6 +34,7 @@ export const saveValentineWithProgress = async (
         special_date: data.specialDate || null,
         memories: data.memories || null,
         reasons: data.reasons,
+        proposal_type: data.proposalType,
       })
       .select()
       .single();
@@ -300,6 +301,7 @@ export const getValentine = async (code: string): Promise<ValentineData | null> 
       specialDate: valentine.special_date as ValentineData['specialDate'],
       memories: valentine.memories || undefined,
       reasons: valentine.reasons,
+      proposalType: (valentine.proposal_type as ValentineData['proposalType']) || 'asking',
       creatorName: valentine.creator_name || undefined,
       createdAt: valentine.created_at,
     };

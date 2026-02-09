@@ -27,6 +27,7 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
   const [memories, setMemories] = useState('');
   const [reasons, setReasons] = useState<string[]>(['']);
   const [creatorName, setCreatorName] = useState('');
+  const [proposalType, setProposalType] = useState<'asking' | 'wishing'>('asking');
   const [isGenerating, setIsGenerating] = useState(false);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -193,6 +194,7 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
           ? reasons.filter(r => r.trim() !== '')
           : DEFAULT_REASONS,
         creatorName,
+        proposalType,
         createdAt: new Date().toISOString()
       };
 
@@ -235,6 +237,58 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
           </p>
           <div className="w-10 h-1 bg-[#d4567f] mx-auto rounded-full mt-4 opacity-30"></div>
         </section>
+
+        {/* Proposal Type Selection */}
+        <div className="bg-white/70 backdrop-blur-md p-6 md:p-10 rounded-3xl shadow-lg border border-white space-y-6">
+          <div className="flex items-center gap-4 border-b border-[#d4567f]/10 pb-4">
+            <span className="text-xl md:text-2xl">💝</span>
+            <h3 className="font-cinzel text-base md:text-lg font-black text-[#5c3d4a] uppercase tracking-widest">The Intent</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={() => setProposalType('asking')}
+              className={`p-6 rounded-2xl border-2 transition-all text-left space-y-2 group ${proposalType === 'asking'
+                ? 'border-[#d4567f] bg-[#d4567f]/5'
+                : 'border-transparent bg-white/50 hover:border-[#d4567f]/30'
+                }`}
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-2xl group-hover:scale-110 transition-transform">💍</span>
+                {proposalType === 'asking' && <span className="text-[#d4567f] text-xl">✓</span>}
+              </div>
+              <div>
+                <h4 className={`font-cinzel font-black uppercase text-sm tracking-wider ${proposalType === 'asking' ? 'text-[#d4567f]' : 'text-gray-600'}`}>
+                  The Proposal
+                </h4>
+                <p className="font-josefin text-xs text-gray-400 mt-1">
+                  Ask the big question: "Will you be my Valentine?"
+                </p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setProposalType('wishing')}
+              className={`p-6 rounded-2xl border-2 transition-all text-left space-y-2 group ${proposalType === 'wishing'
+                ? 'border-[#d4567f] bg-[#d4567f]/5'
+                : 'border-transparent bg-white/50 hover:border-[#d4567f]/30'
+                }`}
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-2xl group-hover:scale-110 transition-transform">💌</span>
+                {proposalType === 'wishing' && <span className="text-[#d4567f] text-xl">✓</span>}
+              </div>
+              <div>
+                <h4 className={`font-cinzel font-black uppercase text-sm tracking-wider ${proposalType === 'wishing' ? 'text-[#d4567f]' : 'text-gray-600'}`}>
+                  The Wish
+                </h4>
+                <p className="font-josefin text-xs text-gray-400 mt-1">
+                  Send a sweet "Happy Valentine's Day" greeting
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
 
         {/* Recipient Details */}
         <div className="bg-white/70 backdrop-blur-md p-6 md:p-10 rounded-3xl shadow-lg border border-white space-y-8">
@@ -433,7 +487,7 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
             </div>
 
             <div className="space-y-4">
-              <label className="font-josefin text-[#d4567f] font-black uppercase text-[9px] tracking-widest">Core Sentiments</label>
+              <label className="font-josefin text-[#d4567f] font-black uppercase text-[9px] tracking-widest">Reasons why i love you</label>
               <div className="space-y-3">
                 {reasons.map((reason, idx) => (
                   <div key={idx} className="flex gap-2 items-center">
@@ -441,14 +495,14 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ onSuccess, onCancel }) => {
                       type="text"
                       value={reason}
                       onChange={(e) => updateReason(idx, e.target.value)}
-                      placeholder={`sentiment ${idx + 1}`}
+                      placeholder={`Reason ${idx + 1}`}
                       className="flex-1 p-3 md:p-4 border-2 border-gray-50 rounded-xl focus:border-[#d4567f] focus:outline-none font-josefin text-sm shadow-sm bg-white/50"
                     />
                     <button onClick={() => removeReason(idx)} className="w-8 h-8 flex-shrink-0 text-gray-200 hover:text-red-400">✕</button>
                   </div>
                 ))}
                 <button onClick={addReason} className="w-full p-3 border-2 border-dashed border-[#d4567f]/20 text-[#d4567f] rounded-xl font-black uppercase text-[9px] tracking-widest hover:bg-[#d4567f] hover:text-white transition-all">
-                  + Add Sentiment
+                  + Add Reason
                 </button>
               </div>
             </div>

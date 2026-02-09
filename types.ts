@@ -14,6 +14,7 @@ export interface ValentineData {
   };
   memories?: string;
   reasons: string[];
+  proposalType: 'asking' | 'wishing';
   creatorName?: string;
   createdAt: string;
 }
